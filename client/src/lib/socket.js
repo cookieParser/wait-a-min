@@ -9,19 +9,18 @@ export const socket = io(socketUrl, {
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     reconnectionAttempts: 5,
-    // Force polling for Vercel serverless compatibility
-    transports: ['polling'],
-    upgrade: false
+    transports: ['websocket', 'polling'],
+    upgrade: true
 });
 
 socket.on('connect', () => {
-    console.log('CONNECTED to socket server:', socket.id);
+    console.log('✓ Real-time updates connected:', socket.id);
 });
 
 socket.on('connect_error', (error) => {
-    console.error('SOCKET connection error:', error);
+    console.error('Socket connection error:', error.message);
 });
 
 socket.on('disconnect', (reason) => {
-    console.warn('SOCKET disconnected:', reason);
+    console.warn('Socket disconnected:', reason);
 });

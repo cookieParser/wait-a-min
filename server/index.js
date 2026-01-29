@@ -26,9 +26,8 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
         credentials: true
     },
-    // Vercel serverless compatibility
-    transports: ['polling'],
-    allowUpgrades: false
+    transports: ['websocket', 'polling'],
+    allowUpgrades: true
 });
 
 // 2. Attach io to app immediately
