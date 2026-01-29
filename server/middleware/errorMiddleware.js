@@ -1,0 +1,44 @@
+const AppError = require('../utils/AppError');
+const { ZodError } = require('zod');
+
+const handleZodError = (err) => {
+    const errors = err.errors.map(el => `${el.path.join('.')}: ${el.message}`);
+    return new AppError(`Validation failed: ${errors.join('. ')}`, 400);
+};
+
+const errorHandler = (err, req, res, next) => {
+    err.statusCode = err.statusCode || 500;
+    err.status = err.status || 'error';
+
+    // Always log errors in development
+    console.error('ERROR:', err.message);
+    console.error('Stack:', err.stack);
+
+    if (process.env.NODE_ENV === 'development') {
+        res.status(err.statusCode).json({
+            status: err.status,
+            error: err,
+            message: err.message,
+            stack: err.stack
+        });
+    } else {
+        let error = Object.assign(err);
+
+        if (error instanceof ZodError) error = handleZodError(error);
+
+        if (error.isOperational) {
+            res.status(error.statusCode).json({
+                status: error.status,
+                message: error.message
+            });
+        } else {
+            console.error('ERROR 💥', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Something went very wrong!'
+            });
+        }
+    }
+};
+
+module.exports = errorHandler;
