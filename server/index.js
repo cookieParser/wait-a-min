@@ -109,8 +109,10 @@ app.use('/api', (req, res, next) => {
 });
 
 // Serve React app for all other routes (except socket.io)
-app.get('*', (req, res, next) => {
-    if (req.originalUrl.startsWith('/socket.io')) return next();
+app.use((req, res, next) => {
+    if (req.originalUrl.startsWith('/socket.io') || req.originalUrl.startsWith('/api')) {
+        return next();
+    }
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
