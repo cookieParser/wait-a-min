@@ -103,11 +103,12 @@ app.get('/api/health', (req, res) => {
 });
 
 // Handle undefined API routes
-app.use('/api/*', (req, res, next) => {
+app.use('/api', (req, res, next) => {
+    if (req.route) return next(); // Route was matched, continue
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Serve React app for all other routes
+// Serve React app for all other routes (except socket.io)
 app.get('*', (req, res, next) => {
     if (req.originalUrl.startsWith('/socket.io')) return next();
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
