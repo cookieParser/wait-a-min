@@ -16,13 +16,21 @@ const rateLimit = require('express-rate-limit');
 const allowedSocketOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://wait-a-min-2zdy.vercel.app',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
 const io = new Server(server, {
     cors: {
-        origin: allowedSocketOrigins,
+        origin: function(origin, callback) {
+            // Allow same-origin and Render domains
+            if (!origin || origin.includes('onrender.com')) {
+                callback(null, true);
+            } else if (allowedSocketOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                callback(null, true); // Allow all for same-origin deployment
+            }
+        },
         methods: ["GET", "POST"],
         credentials: true
     },
@@ -37,12 +45,19 @@ app.set('socketio', io);
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://wait-a-min-2zdy.vercel.app',
     process.env.FRONTEND_URL // Add your production frontend URL here
 ].filter(Boolean);
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: function(origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, same-origin)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('onrender.com')) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow all for now since we're serving from same origin
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -79,18 +94,23 @@ const AppError = require('./utils/AppError');
 
 app.use('/api', apiRoutes);
 
-app.get('/', (req, res) => {
-    res.send('Wait Time Clarity API is running');
-});
+// Serve static files from React build
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'API is running' });
 });
 
-// Handle undefined routes - Use standard middleware for catch-all in Express 5
-app.use((req, res, next) => {
-    if (req.originalUrl.startsWith('/socket.io')) return next();
+// Handle undefined API routes
+app.use('/api/*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// Serve React app for all other routes
+app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/socket.io')) return next();
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // Global Error Handler

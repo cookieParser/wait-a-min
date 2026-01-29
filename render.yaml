@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: wait-time-app
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      cd client && npm install && npm run build
+      cd ../server && npm install
+    startCommand: cd server && node index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        value: mongodb+srv://dasdivyadarshan_db_user:BcKktOKcX3o53Rzw@cluster0.a99djwz.mongodb.net/waitclarity?retryWrites=true&w=majority
+      - key: JWT_SECRET
+        value: supersecretkey
+      - key: GEMINI_API_KEY
+        value: AIzaSyAyX9tBQkqH3ytCrgDSbeRSMxAKxQpPUTw

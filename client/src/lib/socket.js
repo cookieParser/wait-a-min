@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
-// Socket initialization pointing to backend server
-const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+// Socket initialization - use relative path for same-origin deployment
+const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
 export const socket = io(socketUrl, {
     autoConnect: true,
