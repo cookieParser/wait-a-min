@@ -8,7 +8,10 @@ export const socket = io(socketUrl, {
     reconnection: true,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    reconnectionAttempts: 5
+    reconnectionAttempts: 5,
+    // Force polling for Vercel serverless compatibility
+    transports: ['polling'],
+    upgrade: false
 });
 
 socket.on('connect', () => {
