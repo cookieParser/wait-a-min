@@ -10,9 +10,12 @@ const errorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    // Always log errors in development
-    console.error('ERROR:', err.message);
+    // Always log errors
+    console.error('=== ERROR ===');
+    console.error('Message:', err.message);
+    console.error('Status:', err.statusCode);
     console.error('Stack:', err.stack);
+    console.error('=============');
 
     if (process.env.NODE_ENV === 'development') {
         res.status(err.statusCode).json({
@@ -32,10 +35,11 @@ const errorHandler = (err, req, res, next) => {
                 message: error.message
             });
         } else {
-            console.error('ERROR 💥', error);
+            console.error('UNHANDLED ERROR 💥', error);
             res.status(500).json({
                 status: 'error',
-                message: 'Something went very wrong!'
+                message: 'Something went wrong!',
+                error: process.env.NODE_ENV === 'production' ? err.message : err.stack
             });
         }
     }

@@ -12,12 +12,19 @@ const updateWaitTimeSchema = z.object({
 
 // Get all places (with basic filter)
 exports.getPlaces = catchAsync(async (req, res, next) => {
+    console.log('GET /api/places - Query params:', req.query);
+    
     const { type, city } = req.query;
     let query = {};
     if (type) query.type = type;
     if (city) query.city = new RegExp(city, 'i');
 
+    console.log('Database query:', query);
+    
     const places = await Place.find(query).sort({ currentWaitTime: 1 });
+    
+    console.log(`Found ${places.length} places`);
+    
     res.json({
         status: 'success',
         results: places.length,
