@@ -50,8 +50,9 @@ const BusinessDashboard = () => {
     const fetchPlaceDetails = async (placeId) => {
         try {
             const res = await axios.get(`${API_URL}/places/${placeId}`);
-            setPlace(res.data);
-            setWaitTime(res.data.currentWaitTime || 0);
+            const placeData = res.data.data || res.data;
+            setPlace(placeData);
+            setWaitTime(placeData.currentWaitTime || 0);
         } catch (err) {
             console.error(err);
         } finally {
