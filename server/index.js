@@ -16,6 +16,7 @@ const rateLimit = require('express-rate-limit');
 const allowedSocketOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://wait-a-min-2zdy.vercel.app',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -34,6 +35,7 @@ app.set('socketio', io);
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://wait-a-min-2zdy.vercel.app',
     process.env.FRONTEND_URL // Add your production frontend URL here
 ].filter(Boolean);
 
