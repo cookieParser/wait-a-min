@@ -91,10 +91,13 @@ const PlaceDetails = () => {
         setSelectedRange(range);
         setSubmitting(true);
         try {
-            console.log('Submitting report:', { placeId: id, waitTimeRange: range });
+            // Convert range to format expected by API (e.g., "0-10" -> "0-10 min")
+            const waitTimeRange = range === '60+' ? '60+ min' : `${range} min`;
+            
+            console.log('Submitting report:', { placeId: id, waitTimeRange });
             const response = await axios.post(`${API_URL}/reports`, {
                 placeId: id,
-                waitTimeRange: range
+                waitTimeRange: waitTimeRange
             });
             console.log('Report submitted successfully:', response.data);
             setReportSuccess(true);
