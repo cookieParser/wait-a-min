@@ -16,21 +16,13 @@ const rateLimit = require('express-rate-limit');
 const allowedSocketOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://wait-a-min-2zdy.vercel.app', // Your Vercel frontend
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
 const io = new Server(server, {
     cors: {
-        origin: function(origin, callback) {
-            // Allow same-origin and Render domains
-            if (!origin || origin.includes('onrender.com')) {
-                callback(null, true);
-            } else if (allowedSocketOrigins.indexOf(origin) !== -1) {
-                callback(null, true);
-            } else {
-                callback(null, true); // Allow all for same-origin deployment
-            }
-        },
+        origin: allowedSocketOrigins,
         methods: ["GET", "POST"],
         credentials: true
     },
@@ -45,17 +37,18 @@ app.set('socketio', io);
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    process.env.FRONTEND_URL // Add your production frontend URL here
+    'https://wait-a-min-2zdy.vercel.app', // Your Vercel frontend
+    process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
     origin: function(origin, callback) {
         // Allow requests with no origin (mobile apps, Postman, same-origin)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('onrender.com')) {
+        if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback(null, true); // Allow all for now since we're serving from same origin
+            callback(null, true); // Allow all for now, tighten in production
         }
     },
     credentials: true,
@@ -94,9 +87,13 @@ const AppError = require('./utils/AppError');
 
 app.use('/api', apiRoutes);
 
-// Serve static files from React build
-const path = require('path');
-app.use(express.static(path.join(__dirname, '../client/dist')));
+app.get('/', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        message: 'WaitClarity API is running',
+        version: '1.0.0'
+    });
+});
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'API is running' });
@@ -106,14 +103,6 @@ app.get('/api/health', (req, res) => {
 app.use('/api', (req, res, next) => {
     if (req.route) return next(); // Route was matched, continue
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-});
-
-// Serve React app for all other routes (except socket.io)
-app.use((req, res, next) => {
-    if (req.originalUrl.startsWith('/socket.io') || req.originalUrl.startsWith('/api')) {
-        return next();
-    }
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 // Global Error Handler

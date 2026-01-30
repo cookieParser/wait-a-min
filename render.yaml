@@ -1,13 +1,12 @@
 services:
   - type: web
-    name: wait-time-app
+    name: wait-time-api
     env: node
     region: oregon
     plan: free
-    buildCommand: |
-      cd client && npm install && npm run build
-      cd ../server && npm install
-    startCommand: cd server && node index.js
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -20,3 +19,5 @@ services:
         value: supersecretkey
       - key: GEMINI_API_KEY
         value: AIzaSyAyX9tBQkqH3ytCrgDSbeRSMxAKxQpPUTw
+      - key: FRONTEND_URL
+        value: https://wait-a-min-2zdy.vercel.app
