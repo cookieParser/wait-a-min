@@ -91,10 +91,12 @@ const PlaceDetails = () => {
         setSelectedRange(range);
         setSubmitting(true);
         try {
-            await axios.post(`${API_URL}/reports`, {
+            console.log('Submitting report:', { placeId: id, waitTimeRange: range });
+            const response = await axios.post(`${API_URL}/reports`, {
                 placeId: id,
                 waitTimeRange: range
             });
+            console.log('Report submitted successfully:', response.data);
             setReportSuccess(true);
             setTimeout(() => {
                 setReportSuccess(false);
@@ -102,7 +104,8 @@ const PlaceDetails = () => {
             }, 4000);
             fetchDetails();
         } catch (err) {
-            console.error(err);
+            console.error('Error submitting report:', err);
+            alert('Failed to submit report. Please try again.');
         } finally {
             setSubmitting(false);
         }
@@ -332,12 +335,22 @@ const PlaceDetails = () => {
                                             whileTap={{ scale: 0.95 }}
                                             disabled={submitting}
                                             onClick={() => handleReport(range)}
-                                            className={`py-4 rounded-2xl text-sm font-bold transition-all border shadow-sm ${selectedRange === range && submitting
-                                                ? 'bg-blue-600 text-white border-blue-600'
-                                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-100 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'
-                                                }`}
+                                            className={`py-4 rounded-2xl text-sm font-bold transition-all border shadow-sm ${
+                                                selectedRange === range && submitting
+                                                    ? 'bg-blue-600 text-white border-blue-600 cursor-wait'
+                                                    : submitting
+                                                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-gray-200 dark:border-gray-700 cursor-not-allowed'
+                                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-100 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'
+                                            }`}
                                         >
-                                            {range === '60+' ? '60+ min' : `${range} min`}
+                                            {selectedRange === range && submitting ? (
+                                                <div className="flex items-center justify-center">
+                                                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    Sending...
+                                                </div>
+                                            ) : (
+                                                range === '60+' ? '60+ min' : `${range} min`
+                                            )}
                                         </motion.button>
                                     ))}
                                 </div>
