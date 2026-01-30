@@ -253,25 +253,6 @@ const PlaceDetails = () => {
                         </div>
                     </motion.div>
                 )}
-
-                {/* Data Notice */}
-                {place.confidenceLevel === 'Low' && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-6 mb-8"
-                    >
-                        <div className="flex items-start">
-                            <AlertCircle className="h-6 w-6 text-amber-500 mr-4 mt-0.5" />
-                            <div>
-                                <p className="text-base font-bold text-amber-800 dark:text-amber-400 tracking-tight">Limited data available</p>
-                                <p className="text-sm text-amber-700 dark:text-amber-500/80 mt-1.5 font-medium leading-relaxed">
-                                    This estimate is based on few recent reports.
-                                </p>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
             </div>
         </div>
     );
